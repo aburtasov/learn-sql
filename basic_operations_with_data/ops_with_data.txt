@@ -1,0 +1,129 @@
+Построим команду на переименование таблицы grades:
+ALTER TABLE grades RENAME TO final_grades;
+
+sqlite> ALTER TABLE grades RENAME TO final_grades;
+sqlite> .tables
+final_grades courses streams students
+sqlite>
+
+#-----------------------------------------------------
+
+Подставим в команду имя таблицы, а также старое и новое имя столбца, которое надо изменить:
+ALTER TABLE final_grades RENAME COLUMN grade TO final_grade;
+
+sqlite> ALTER TABLE final_grades RENAME COLUMN grade TO final_grade;
+sqlite> .schema final_grades
+CREATE TABLE IF NOT EXISTS "final_grades" (
+student_id INTEGER NOT NULL,
+stream_id INTEGER NOT NULL,
+final_grade REAL NOT NULL,
+PRIMARY KEY(student_id, stream_id),
+FOREIGN KEY (student_id) REFERENCES students(id),
+FOREIGN KEY (stream_id) REFERENCES streams(id)
+);
+sqlite>
+
+#-----------------------------------------------------
+
+sqlite> .schema students
+CREATE TABLE students (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+surname TEXT NOT NULL,
+name TEXT NOT NULL
+sqlite>
+
+Команда для добавления нового столбца будет иметь следующий вид:
+ALTER TABLE students ADD COLUMN email TEXT;
+
+#----------------------------------------------------
+
+Удалим таблицу final_grades:
+DROP TABLE final_grades;
+
+Проверим результат:
+sqlite> .tables
+courses streams students
+sqlite>
+
+#---------------------------------------------------
+
+Прежде чем работать с данными таблицы, убедимся, что она пустая. Для этого понадобится команда
+SELECT. В базовом варианте для этой команды достаточно указать, к какой таблице мы обращаемся,
+и перечислить имена столбцов, данные которых нас интересуют:
+
+SELECT 'Столбец 1', 'Столбец 2', 'Столбец N' FROM 'Имя Таблицы';
+
+Если надо получить данные всех столбцов, то применяется символ подстановки * (звёздочка). Это
+упростит команду:
+SELECT * FROM 'Имя Таблицы';
+
+#----------------------------------------------------
+
+INSERT INTO 'Имя Таблицы' [('Столбец 1', 'Столбец 2', 'Столбец 3', 'Столбец N')]
+VALUES ('Значение 1', 'Значение 2', 'Значение 3', 'Значение N');
+
+INSERT INTO courses (id, name, lessons_amount) VALUES (1, 'Базы данных', 12);
+
+Если данные вставляются во все столбцы таблицы, то в команде INSERT имена столбцов не
+перечисляются. В этом случае команда выглядит так:
+INSERT INTO courses VALUES (1, 'Базы данных', 12);
+
+Вспомним, что столбец первичного ключа id имеет признак автоинкремента (AUTOINCREMENT),
+поэтому вставлять значение для id явным образом необязательно:
+INSERT INTO courses (name, lessons_amount) VALUES ('Базы данных', 12);
+
+sqlite> INSERT INTO courses (name, lessons_amount) VALUES ('Базы данных', 12);
+sqlite> SELECT * FROM courses;
+1|Базы данных|12
+sqlite>
+
+#-----------------------------------------------------
+
+INSERT INTO courses (name, lessons_amount) VALUES
+('Linux. Рабочая станция', 8),
+('Основы Python', 8);
+
+#-----------------------------------------------------
+
+sqlite> .mode
+current output mode: list
+sqlite> SELECT * FROM courses;
+1|Базы данных|12
+2|Linux. Рабочая станция|8
+3|Основы Python|8
+sqlite>
+
+#------------------------------------------------------
+
+sqlite> .header on
+sqlite> .mode column
+sqlite> SELECT * FROM courses;
+id name lessons_amount
+---------- ----------- --------------
+1 Базы данных 12
+2 Linux. Рабо 8
+3 Основы Pyth 8
+sqlite>
+
+#------------------------------------------------------
+
+UPDATE 'Имя Таблицы'
+SET 'Столбец 1' = 'Значение1', 'Столбец 2' = 'Значение 2', 'Столбец N' =
+'Значение N'
+WHERE ['Условие'];
+
+UPDATE courses SET lessons_amount = 8 WHERE id = 1;
+
+UPDATE courses SET lessons_amount = 8 WHERE name = 'Базы данных';
+
+#-------------------------------------------------------
+
+Для удаления данных используется команда DELETE, в которой задаём имя таблицы, а также условие
+для удаления конкретных строк:
+
+DELETE FROM 'Имя таблицы' WHERE [Условие];
+
+DELETE FROM courses WHERE name = 'Основы Python';
+
+
+
